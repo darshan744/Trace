@@ -6,8 +6,9 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"path"
 
+	"github.com/darshan744/Trace/configs"
+	"github.com/darshan744/Trace/internals"
 	"github.com/spf13/cobra"
 )
 
@@ -17,30 +18,43 @@ var addCmd = &cobra.Command{
 	Short: "Adds the specified file to staging",
 	Long:  `Adds the file or complete directory to the staging area and then when commiting you can create a history version of it`,
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 1 && args[0] == "." {
-
-		} else {
-
+		if !internals.DirExists(configs.MainDir) {
+			fmt.Println("This is not a trace repository ")
+			return
 		}
+		stagedEntries := make([]string, 0)
+		currentDir, err := os.Getwd()
+		if err != nil {
+			fmt.Printf("Error in geting current Directory %v ", err)
+			return
+		}
+		if len(args) == 1 && args[0] == "." {
+			internals.Traverse(currentDir, &stagedEntries)
+		} else {
+			handleArgFiles(args, &stagedEntries)
+		}
+
+		fmt.Println(stagedEntries)
 	},
 }
 
-func addFile() {
+func handleArgFiles(args []string, stagedEntries *[]string) {
 
-}
+	for _, arg := range args {
+		info, err := os.Stat(arg)
 
-func traverse(dir string, stagedEntries []string) {
+		if err != nil {
+			fmt.Printf("Error in reading file or directory %s : %v ", arg, err)
+			return
+		}
+
+		if info.IsDir() {
+			internals.Traverse(arg, stagedEntries)
+		} else {
+			*stagedEntries = append(*stagedEntries, arg)
+		}
+	}
 }
 func init() {
 	rootCmd.AddCommand(addCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

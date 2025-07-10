@@ -3,6 +3,8 @@ package cmd
 import (
 	"path/filepath"
 	"testing"
+
+	"github.com/darshan744/Trace/internals"
 )
 
 func TestInitializeRepo(t *testing.T) {
@@ -19,10 +21,10 @@ func TestInitializeRepo(t *testing.T) {
 	objPath := filepath.Join(tracePath, "objects")
 	refPath := filepath.Join(tracePath, "refs")
 
-	if !dirExists(objPath) {
+	if !internals.DirExists(objPath) {
 		t.Errorf("Creation of .trace/objects folder failed")
 	}
-	if !dirExists(refPath) {
+	if !internals.DirExists(refPath) {
 		t.Errorf("Creation of .trace/ref folder failed")
 	}
 
