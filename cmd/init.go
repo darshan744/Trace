@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -8,14 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/darshan744/Trace/configs"
+	"github.com/darshan744/Trace/internals"
 	"github.com/spf13/cobra"
-)
-
-var (
-	mainDir = ".trace"
-	subDirs = []string{
-		"objects", "refs",
-	}
 )
 
 // initCmd represents the init command
@@ -24,7 +16,7 @@ var initCmd = &cobra.Command{
 	Short: "Initialize a trace repository",
 	Long:  `Init initializes a empty trace repository `,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		fmt.Println(args)
 		currentDir, err := os.Getwd()
 
 		if err != nil {
@@ -35,15 +27,14 @@ var initCmd = &cobra.Command{
 			fmt.Println("Error", err)
 			return
 		}
-
-		fmt.Println("Initialized empty trace repository")
+		fmt.Println("Initialized empty trace repository", currentDir)
 	},
 }
 
 func initializeRepo(currentDir string) error {
 
-	tracePath := filepath.Join(currentDir, mainDir)
-	if dirExists(tracePath) {
+	tracePath := filepath.Join(currentDir, configs.MainDir)
+	if internals.DirExists(tracePath) {
 		return fmt.Errorf("Already Initialized %s ", tracePath)
 	}
 
@@ -53,7 +44,7 @@ func initializeRepo(currentDir string) error {
 		return fmt.Errorf("Could not create .trace %v", err)
 	}
 
-	for _, subdir := range subDirs {
+	for _, subdir := range configs.SubDirs {
 		subpath := filepath.Join(tracePath, subdir)
 
 		if err := os.Mkdir(subpath, 0755); err != nil {
@@ -65,10 +56,6 @@ func initializeRepo(currentDir string) error {
 	return nil
 }
 
-func dirExists(dir string) bool {
-	info, err := os.Stat(dir)
-	return err == nil && info.IsDir()
-}
 func init() {
 	rootCmd.AddCommand(initCmd)
 }
