@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"os"
 	"path"
+
+	"github.com/darshan744/Trace/configs"
 )
 
 func Traverse(dir string, stagedEntries *[]string) {
@@ -16,7 +18,9 @@ func Traverse(dir string, stagedEntries *[]string) {
 
 	for _, entry := range entries {
 		if entry.IsDir() {
-			Traverse(path.Join(dir, entry.Name()), stagedEntries)
+			if !configs.IgnoredDirs[entry.Name()] {
+				Traverse(path.Join(dir, entry.Name()), stagedEntries)
+			}
 		} else {
 			*stagedEntries = append(*stagedEntries, path.Join(dir, entry.Name()))
 		}
