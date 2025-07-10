@@ -1,6 +1,3 @@
-/*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
@@ -17,14 +14,13 @@ var (
 		"objects", "refs",
 	}
 )
-
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize a trace repository",
 	Long:  `Init initializes a empty trace repository `,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		fmt.Println(args)
 		currentDir, err := os.Getwd()
 
 		if err != nil {
@@ -35,8 +31,7 @@ var initCmd = &cobra.Command{
 			fmt.Println("Error", err)
 			return
 		}
-
-		fmt.Println("Initialized empty trace repository")
+		fmt.Println("Initialized empty trace repository", currentDir)
 	},
 }
 
