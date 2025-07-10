@@ -4,11 +4,9 @@ Copyright © 2025 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"errors"
 	"fmt"
-	"io/fs"
 	"os"
-	"strings"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -37,10 +35,10 @@ func initializeRepo() {
 		fmt.Println(err)
 		return
 	}
-	alreadyInitialized := isInitializedAlready(currentDir)
 
-	if alreadyInitialized {
-		fmt.Println("Repo Already Initialized")
+	tracePath := filepath.Join(currentDir, mainDir)
+	if dirExists(tracePath) {
+		fmt.Println("Already Initialized", tracePath)
 		return
 	}
 
@@ -51,36 +49,22 @@ func initializeRepo() {
 		return
 	}
 
-	fmt.Println("Successfully initialized a repository")
+	for _, subdir := range subDirs {
+		subpath := filepath.Join(tracePath, subdir)
+
+		if err := os.Mkdir(subpath, 0755); err != nil {
+			fmt.Printf("Failed to create %s : %v ", subdir, err)
+			return
+		}
+	}
+
+	fmt.Println("Successfully initialized Repository")
+
 }
 
-func isInitializedAlready(currDir string) bool {
-	parentExist, err := dirExists(currDir)
-
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	currentPath := strings.Join([]string{currDir, mainDir}, string(os.PathListSeparator))
-
-	childExist, err := dirExists(currentPath)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	return parentExist && childExist
-}
-func dirExists(dir string) (bool, error) {
-	_, err := os.Stat(dir)
-
-	if err == nil {
-		return true, nil
-	} else if errors.Is(err, fs.ErrNotExist) {
-		return false, nil
-	}
-
-	return false, err
+func dirExists(dir string) bool {
+	info, err := os.Stat(dir)
+	return err == nil && info.IsDir()
 }
 func init() {
 	rootCmd.AddCommand(initCmd)
