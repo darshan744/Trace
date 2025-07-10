@@ -24,42 +24,45 @@ var initCmd = &cobra.Command{
 	Short: "Initialize a trace repository",
 	Long:  `Init initializes a empty trace repository `,
 	Run: func(cmd *cobra.Command, args []string) {
-		initializeRepo()
+
+		currentDir, err := os.Getwd()
+
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if err = initializeRepo(currentDir); err != nil {
+			fmt.Println("Error", err)
+			return
+		}
+
+		fmt.Println("Initialized empty trace repository")
 	},
 }
 
-func initializeRepo() {
-	currentDir, err := os.Getwd()
-
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
+func initializeRepo(currentDir string) error {
 
 	tracePath := filepath.Join(currentDir, mainDir)
 	if dirExists(tracePath) {
-		fmt.Println("Already Initialized", tracePath)
-		return
+		return fmt.Errorf("Already Initialized %s ", tracePath)
 	}
 
-	err = os.Mkdir(".trace", 0755)
+	err := os.Mkdir(tracePath, 0755)
 
 	if err != nil {
-		fmt.Println(err)
-		return
+		return fmt.Errorf("Could not create .trace %v", err)
 	}
 
 	for _, subdir := range subDirs {
 		subpath := filepath.Join(tracePath, subdir)
 
 		if err := os.Mkdir(subpath, 0755); err != nil {
-			fmt.Printf("Failed to create %s : %v ", subdir, err)
-			return
+			return fmt.Errorf("Failed to create %s : %v ", subdir, err)
+
 		}
 	}
 
-	fmt.Println("Successfully initialized Repository")
-
+	return nil
 }
 
 func dirExists(dir string) bool {
