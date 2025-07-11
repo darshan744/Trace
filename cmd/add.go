@@ -33,7 +33,7 @@ var addCmd = &cobra.Command{
 		} else {
 			handleArgFiles(args, &stagedEntries)
 		}
-		printDirs(stagedEntries)
+		internals.HashContent(stagedEntries)
 	},
 }
 
