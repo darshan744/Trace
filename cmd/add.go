@@ -33,7 +33,7 @@ var addCmd = &cobra.Command{
 		} else {
 			handleArgFiles(args, &stagedEntries)
 		}
-		internals.HashContent(stagedEntries)
+		internals.HashFiles(stagedEntries)
 	},
 }
 
@@ -51,11 +51,6 @@ func handleArgFiles(args []string, stagedEntries *[]string) {
 		} else {
 			*stagedEntries = append(*stagedEntries, arg)
 		}
-	}
-}
-func printDirs(dirs []string) {
-	for _, dir := range dirs {
-		fmt.Println(dir)
 	}
 }
 func init() {

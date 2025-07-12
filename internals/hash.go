@@ -3,6 +3,7 @@ package internals
 import (
 	"crypto/sha1"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
@@ -10,10 +11,10 @@ import (
 	"github.com/darshan744/Trace/configs"
 )
 
-func HashContent(files []string) {
+func HashFiles(files []string) {
+	var hashedFiles []string = make([]string, 0)
 	for _, file := range files {
 		content, err := os.ReadFile(file)
-		fmt.Println(file)
 		if err != nil {
 			fmt.Printf("Error in hashing file %s : %v", file, err)
 			return
@@ -21,17 +22,36 @@ func HashContent(files []string) {
 		// for imitating git
 		var contentLen int = len(content)
 		var contentStr string = string(content)
-		fmt.Println(contentStr)
 		// sha1.Sum expects a []byte
 		var blob []byte = []byte("blob " + strconv.Itoa(contentLen) + "\000" + contentStr)
 		// its a byte array of 20 (meaning its not a slice )
-		var hashedValue [20]byte = sha1.Sum(blob)
+		var hashedValue [20]byte = Hash(blob)
 		// Reasong for [:]
 		// EncodeToString expectes a slice not fixed size array
 		// To get a slice we do [:]
 		var hexCodeStringOfHash string = hex.EncodeToString(hashedValue[:])
 		// stores somethign like "blob <contentLen>\0<filecontent>" git stores like this hence we do the same
-		os.WriteFile(configs.ObjectDir+"/"+hexCodeStringOfHash, blob, 0644)
-		fmt.Println("-------------------------------------------")
+		hashedFileDir := configs.ObjectDir + "/" + hexCodeStringOfHash
+		hashedFiles = append(hashedFiles, hashedFileDir)
+		os.WriteFile(hashedFileDir, blob, 0644)
 	}
+	writeToIndex(hashedFiles)
+}
+
+func writeToIndex(fileDirs []string) {
+	data := struct {
+		Files []string `json:"files"`
+	}{
+		Files: fileDirs,
+	}
+	byteData, err := json.Marshal(data)
+
+	if err != nil {
+		fmt.Printf("Error while writing to index : %v", err)
+	}
+	os.WriteFile(configs.IndexDir, byteData, 0644)
+}
+
+func Hash(content []byte) [20]byte {
+	return sha1.Sum(content)
 }
