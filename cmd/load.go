@@ -1,8 +1,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/darshan744/Trace/internals"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +13,7 @@ var loadCmd = &cobra.Command{
 	Short: "Move to a specified commit",
 	Long:  `This command helps the user to move out to the specified commit done by the user `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(commitName)
+		internals.RestoreHistory(commitName)
 	},
 }
 
