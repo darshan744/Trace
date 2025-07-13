@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/darshan744/Trace/internals"
 	"github.com/spf13/cobra"
 )
 
@@ -9,27 +9,12 @@ import (
 var logCmd = &cobra.Command{
 	Use:   "log",
 	Short: "Lists out the commits done by the user",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long:  `Logs the commit done by the user which he can use to switch back to a certain snapshot`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("log called")
+		internals.LogAllCommit()
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(logCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// logCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// logCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
