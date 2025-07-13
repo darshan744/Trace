@@ -23,6 +23,7 @@ var addCmd = &cobra.Command{
 			return
 		}
 		stagedEntries := make([]string, 0)
+		// stagedEntries := make([]configs.HashedFiles , 0)
 		currentDir, err := os.Getwd()
 		if err != nil {
 			fmt.Printf("Error in geting current Directory %v ", err)

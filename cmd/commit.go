@@ -27,9 +27,9 @@ var commitCmd = &cobra.Command{
 		var time time.Time = time.Now()
 		// create a commit object
 		commitMessage := configs.Commit{
-			Message: message,
-			Files:   getFiles(),
-			Time:    time,
+			Message:     message,
+			HashedFiles: internals.GetIndexFileData(),
+			Time:        time,
 		}
 		// convert the to json -> returns []byte
 		cont, err := json.Marshal(commitMessage)
@@ -39,25 +39,24 @@ var commitCmd = &cobra.Command{
 		}
 		// hash the []byte to get hashed value
 		hashedContent := internals.Hash(cont)
+		// convert byte content to hashed string like
+		hexHashed := hex.EncodeToString(hashedContent[:])
+		latestCommitObject := configs.LatestCommit{
+			Latest: hexHashed,
+		}
+		latestCommitJson, errJ := json.Marshal(latestCommitObject)
+		if errJ != nil {
+			fmt.Printf("Error in converting latestCommitObject to JSON : %v", err)
+			return
+		}
 		// write to hash as filename .json
-		os.WriteFile(filepath.Join(configs.CommitDir, hex.EncodeToString(hashedContent[:]))+".json", cont, 0644)
-		os.WriteFile(configs.IndexDir, []byte(""), 0644)
+		os.WriteFile(filepath.Join(configs.CommitDir, hexHashed)+".json", cont, 0644)
+		// change the index to point to latest commit
+		os.WriteFile(configs.IndexDir, latestCommitJson, 0644)
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(commitCmd)
 	commitCmd.Flags().StringVarP(&message, "message", "m", "", "Help for commiting")
-}
-
-func getFiles() []string {
-	byteData, err := os.ReadFile(configs.IndexDir)
-	if err != nil {
-		fmt.Printf("Error while getting index.json for commit message : %v ", err)
-		return nil
-	}
-	var files configs.IndexFiles
-	json.Unmarshal(byteData, &files)
-
-	return files.Files
 }

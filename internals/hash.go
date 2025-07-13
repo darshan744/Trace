@@ -13,6 +13,7 @@ import (
 
 func HashFiles(files []string) {
 	var hashedFiles []string = make([]string, 0)
+	var hashFileObj []configs.HashedFiles = make([]configs.HashedFiles, 0)
 	for _, file := range files {
 		content, err := os.ReadFile(file)
 		if err != nil {
@@ -30,21 +31,18 @@ func HashFiles(files []string) {
 		// EncodeToString expectes a slice not fixed size array
 		// To get a slice we do [:]
 		var hexCodeStringOfHash string = hex.EncodeToString(hashedValue[:])
+		var fileObj configs.HashedFiles = configs.HashedFiles{FileName: file, Hash: hexCodeStringOfHash}
+		hashFileObj = append(hashFileObj, fileObj)
 		// stores somethign like "blob <contentLen>\0<filecontent>" git stores like this hence we do the same
 		hashedFileDir := configs.ObjectDir + "/" + hexCodeStringOfHash
 		hashedFiles = append(hashedFiles, hashedFileDir)
 		os.WriteFile(hashedFileDir, blob, 0644)
 	}
-	writeToIndex(hashedFiles)
+	writeToIndex(hashFileObj)
 }
 
-func writeToIndex(fileDirs []string) {
-	data := struct {
-		Files []string `json:"files"`
-	}{
-		Files: fileDirs,
-	}
-	byteData, err := json.Marshal(data)
+func writeToIndex(fileDirs []configs.HashedFiles) {
+	byteData, err := json.Marshal(fileDirs)
 
 	if err != nil {
 		fmt.Printf("Error while writing to index : %v", err)
