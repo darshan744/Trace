@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"strconv"
 
 	"github.com/darshan744/Trace/configs"
 )
@@ -20,13 +19,8 @@ func HashFiles(files []string) {
 			fmt.Printf("Error in hashing file %s : %v", file, err)
 			return
 		}
-		// for imitating git
-		var contentLen int = len(content)
-		var contentStr string = string(content)
-		// sha1.Sum expects a []byte
-		var blob []byte = []byte("blob " + strconv.Itoa(contentLen) + "\000" + contentStr)
 		// its a byte array of 20 (meaning its not a slice )
-		var hashedValue [20]byte = Hash(blob)
+		var hashedValue [20]byte = Hash(content)
 		// Reasong for [:]
 		// EncodeToString expectes a slice not fixed size array
 		// To get a slice we do [:]
@@ -36,7 +30,7 @@ func HashFiles(files []string) {
 		// stores somethign like "blob <contentLen>\0<filecontent>" git stores like this hence we do the same
 		hashedFileDir := configs.ObjectDir + "/" + hexCodeStringOfHash
 		hashedFiles = append(hashedFiles, hashedFileDir)
-		os.WriteFile(hashedFileDir, blob, 0644)
+		os.WriteFile(hashedFileDir, content, 0644)
 	}
 	writeToIndex(hashFileObj)
 }

@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"fmt"
+
 	"github.com/darshan744/Trace/internals"
 	"github.com/spf13/cobra"
 )
@@ -13,11 +15,14 @@ var loadCmd = &cobra.Command{
 	Short: "Move to a specified commit",
 	Long:  `This command helps the user to move out to the specified commit done by the user `,
 	Run: func(cmd *cobra.Command, args []string) {
-		internals.RestoreHistory(commitName)
+		if len(args) != 1 {
+			fmt.Println("Only one hash is allowed")
+			return
+		}
+		internals.RestoreHistory(args[0])
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(loadCmd)
-	loadCmd.Flags().StringVarP(&commitName, "commitHash", "c", "", "Specify the commit's hash to get to that point")
 }
